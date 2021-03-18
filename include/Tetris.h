@@ -6,6 +6,7 @@
 #include <memory>
 #include <random>
 #include <utility>
+#include <string>
 
 #include "Auxiliary.h"
 #include "BaseApp.h"
@@ -38,6 +39,7 @@ class Tetris : public BaseApp {
 
   Vec2 mSpawnPosition;
   Vec2 mSpawnPositionPreview;
+  Vec2 mSpawnPositionScore;
 
   std::array<std::array<int, 4>, 7> mTetrominoFigures = {{
       {1, 5, 9, 13},  // I
@@ -55,7 +57,9 @@ class Tetris : public BaseApp {
 
   Tetromino mTetrominoNum = Tetromino::kUnknown;
   Tetromino mTetrominoNextNum = Tetromino::kUnknown;
-  
+
   // true = vertical
   bool mStateTetromino = true;
+
+  long mScore = 0;
 };

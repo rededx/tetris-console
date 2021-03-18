@@ -2,9 +2,9 @@
 
 #include <thread>
 
-Tetris::Tetris() : BaseApp(26, 26) {
+Tetris::Tetris() : BaseApp(26, 27) {
   mWindowWidth = 26;
-  mWindowHeight = 26;
+  mWindowHeight = 27;
 
   // set game field
   mGameFieldLeftUp = {1, 1};
@@ -17,6 +17,12 @@ Tetris::Tetris() : BaseApp(26, 26) {
       (mWindowWidth - (mGameFieldRightDown.x - mGameFieldLeftUp.x)) / 2 +
           (mGameFieldRightDown.x - mGameFieldLeftUp.x),
       mGameFieldLeftUp.y + 2};
+
+  mSpawnPositionScore = {
+      2 + mGameFieldLeftUp.x,
+      (mWindowHeight - (mGameFieldRightDown.y + mGameFieldLeftUp.y)) / 2 +
+          (mGameFieldRightDown.y + mGameFieldLeftUp.y),
+  };
 
   // Create border
   for (int i = 0; i < mWindowWidth; i++) {
@@ -103,6 +109,12 @@ void Tetris::UpdateF(float deltaTime) {
     for (auto&& [x, y] : mTetrominoNext) {
       SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L'O');
     }
+
+    // Show score
+    auto scoreStr = std::wstring(L"> Score: " + std::to_wstring(mScore));
+    for (auto i = 0; i < scoreStr.size(); ++i) {
+      SetChar(mSpawnPositionScore.x + i, mSpawnPositionScore.y, scoreStr.at(i));
+    }
   }
 
   // change tetromino coordinate
@@ -127,6 +139,13 @@ void Tetris::UpdateF(float deltaTime) {
     else {
       // check line
       LineFillÑheck();
+
+      // Show score
+      auto scoreStr = std::wstring(L"> Score: " + std::to_wstring(mScore));
+      for (auto i = 0; i < scoreStr.size(); ++i) {
+        SetChar(mSpawnPositionScore.x + i, mSpawnPositionScore.y,
+                scoreStr.at(i));
+      }
 
       // Clear Preview
       for (auto&& [x, y] : mTetrominoNext) {
@@ -331,9 +350,14 @@ void Tetris::LineFillÑheck() {
       if (GetChar(x, y) == L'O') ++count;
     }
 
-    if (count == (mGameFieldRightDown.x - mGameFieldLeftUp.x))
+    if (count == (mGameFieldRightDown.x - mGameFieldLeftUp.x)) {
       for (auto j = y; j > mGameFieldLeftUp.y; --j)
-        for (auto i = mGameFieldLeftUp.x; i < mGameFieldRightDown.x; ++i)
+        for (auto i = mGameFieldLeftUp.x; i < mGameFieldRightDown.x; ++i) {
           SetChar(i, j, GetChar(i, j - 1));
+        }
+
+      // Update score
+      mScore += 100l;
+    }
   }
 }
