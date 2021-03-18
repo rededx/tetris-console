@@ -1,6 +1,7 @@
 // Copyright 2009-2014 Blam Games, Inc. All Rights Reserved.
 
-#include "TestApp.h"
+//#include "TestApp.h"
+#include "BaseApp.h"
 #include <algorithm>
 #include <time.h>
 #include <conio.h>
@@ -93,9 +94,9 @@ void BaseApp::Run()
 	while (1)
 	{
 		timer.Start();
-		if (kbhit())
+		if (_kbhit())
 		{
-			KeyPressed (getch());
+			KeyPressed (_getch());
 			if (!FlushConsoleInputBuffer(mConsoleIn))
 				cout<<"FlushConsoleInputBuffer failed with error "<<GetLastError();
 		}
