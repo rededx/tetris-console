@@ -3,11 +3,13 @@
 #include <Windows.h>
 #include <array>
 #include <cmath>
+#include <map>
 #include <random>
 #include <utility>
+#include <memory>
 
-#include "BaseApp.h"
 #include "Auxiliary.h"
+#include "BaseApp.h"
 
 // using Vec2 = std::pair<int, int>;
 using Mat2 = std::array<Vec2, 2>;
@@ -23,6 +25,7 @@ class Tetris : public BaseApp {
   int GetNextTetromino();
   Mat4x2 CalculateCoordinatesTetromino();
   Mat4x2 Rotate(Mat4x2&);
+  bool CheckNewPosition(Mat4x2& objectj, Vec2&& vectorMove);
 
  private:
   float mDelay = 0.5f;

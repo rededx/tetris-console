@@ -42,7 +42,7 @@ Tetris::Tetris() : BaseApp(25, 26) {
 }
 
 void Tetris::KeyPressed(int btnCode) {
-  auto dx = 0;
+  std::shared_ptr<int> dx = nullptr;
 
   if (mKeyboradArrowFlag) {
     mKeyboradArrowFlag = false;
@@ -52,27 +52,24 @@ void Tetris::KeyPressed(int btnCode) {
         break;
 
       case (int)Keyboard::kArrowLeft:
-        --dx;
+        dx = std::make_shared<int>(-1);
         break;
 
       case (int)Keyboard::kArrowRight:
-        ++dx;
+        dx = std::make_shared<int>(1);
         break;
 
       case (int)Keyboard::kArrowDown:
+        mDelay = 0.05f;
         break;
 
       default:
         break;
     }
 
-    bool actionFlag = true;
-    for (auto&& [x, y] : mTetromino) {
-      if (x + dx < mGameFieldLeftUp.x || x + dx > mGameFieldRightDown.x)
-        actionFlag = false;
-    }
-    if (actionFlag)
-      for (auto&& [x, y] : mTetromino) x += dx;
+    if (dx != nullptr)
+      if (CheckNewPosition(mTetromino, {*dx, 0}))
+        for (auto&& [x, y] : mTetromino) x += *dx;
 
   } else {
     Mat4x2 tempTetromino;
@@ -111,16 +108,11 @@ void Tetris::UpdateF(float deltaTime) {
   mTime += deltaTime;
   if (mTime > mDelay) {
     mTime -= mDelay;
-
-    bool actionFlag = true;
-
-    for (auto&& [x, y] : mTetromino) {
-      if (y >= mGameFieldRightDown.y) actionFlag = false;
-    }
-
-    if (actionFlag)
+    // move tetromino
+    if (CheckNewPosition(mTetromino, {0, 1}))
       for (auto&& [x, y] : mTetromino) ++y;
     else {
+      // check and create new tetromino
       mTetrominoNum = GetNextTetromino();
       mTetromino = CalculateCoordinatesTetromino();
 
@@ -128,7 +120,13 @@ void Tetris::UpdateF(float deltaTime) {
         x += mObject.x;
         y += mObject.y;
       }
-      mTetrominoOld = mTetromino;
+
+      if (CheckNewPosition(mTetromino, {0, 0})) {
+        mTetrominoOld = mTetromino;
+
+        mDelay = 0.3f;
+      } else
+        exit(0);
     }
   }
 }
@@ -189,10 +187,11 @@ Mat4x2 Tetris::Rotate(Mat4x2& object) {
       center = mTetromino.begin() + 1;
       if (mStateTetromino) {
         newObject = rotateObject(object, center, rotatePoint);
+        mStateTetromino = !mStateTetromino;
       } else {
         newObject = rotateObject(object, center, rotatePointBack);
+        mStateTetromino = !mStateTetromino;
       }
-      mStateTetromino = !mStateTetromino;
       break;
 
     case (int)Tetromino::O:
@@ -237,4 +236,58 @@ Mat4x2 Tetris::Rotate(Mat4x2& object) {
   }
 
   return std::move(newObject);
+}
+
+bool Tetris::CheckNewPosition(Mat4x2& object, Vec2&& vectorMove) {
+  auto edgeRightOrLeft = [&]() -> decltype(auto) {
+    std::unordered_map<decltype(object.begin()->y), decltype(object.begin()->x)>
+        edgeElement;
+
+    for (auto&& [x, y] : object) {
+      auto element = edgeElement.find(y);
+
+      if (element != edgeElement.end()) {
+        if (vectorMove.x > 0)
+          if (edgeElement.at(y) < x) edgeElement[y] = x;
+        if (vectorMove.x < 0)
+          if (edgeElement.at(y) > x) edgeElement[y] = x;
+      } else
+        edgeElement[y] = x;
+    }
+    return edgeElement;
+  };
+
+  auto edgeDown = [&]() -> decltype(auto) {
+    std::unordered_map<decltype(object.begin()->y), decltype(object.begin()->x)>
+        edgeElement;
+
+    for (auto&& [x, y] : object) {
+      auto element = edgeElement.find(x);
+
+      if (element != edgeElement.end()) {
+        if (edgeElement.at(x) < y) edgeElement[x] = y;
+      } else
+        edgeElement[x] = y;
+    }
+    return edgeElement;
+  };
+
+  if (vectorMove.x == 0 && vectorMove.y == 0) {
+    for (auto&& [x, y] : object)
+      if (GetChar(x, y) == L'O') return false;
+  } else if (vectorMove.x != 0)
+    for (auto&& [y, x] : edgeRightOrLeft()) {
+      if (GetChar(x + vectorMove.x, y + vectorMove.y) == L'O') return false;
+
+      if (x + vectorMove.x < mGameFieldLeftUp.x ||
+          x + vectorMove.x > mGameFieldRightDown.x)
+        return false;
+    }
+  else if (vectorMove.y != 0)
+    for (auto&& [x, y] : edgeDown()) {
+      if (y + vectorMove.y > mGameFieldRightDown.y) return false;
+      if (GetChar(x + vectorMove.x, y + vectorMove.y) == L'O') return false;
+    }
+
+  return true;
 }
