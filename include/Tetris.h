@@ -3,10 +3,9 @@
 #include <Windows.h>
 #include <array>
 #include <cmath>
-#include <map>
+#include <memory>
 #include <random>
 #include <utility>
-#include <memory>
 
 #include "Auxiliary.h"
 #include "BaseApp.h"
@@ -26,6 +25,7 @@ class Tetris : public BaseApp {
   Mat4x2 CalculateCoordinatesTetromino();
   Mat4x2 Rotate(Mat4x2&);
   bool CheckNewPosition(Mat4x2& objectj, Vec2&& vectorMove);
+  void LineFill—heck();
 
  private:
   float mDelay = 0.5f;

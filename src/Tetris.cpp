@@ -100,7 +100,6 @@ void Tetris::UpdateF(float deltaTime) {
   }
   mTetrominoOld = mTetromino;
 
-
   mTime += deltaTime;
   if (mTime > mDelay) {
     mTime -= mDelay;
@@ -108,6 +107,9 @@ void Tetris::UpdateF(float deltaTime) {
     if (CheckNewPosition(mTetromino, {0, 1}))
       for (auto&& [x, y] : mTetromino) ++y;
     else {
+      // check line
+      LineFill—heck();
+
       // check and create new tetromino
       mTetrominoNum = GetNextTetromino();
       mTetromino = CalculateCoordinatesTetromino();
@@ -290,4 +292,19 @@ bool Tetris::CheckNewPosition(Mat4x2& object, Vec2&& vectorMove) {
     }
 
   return true;
+}
+
+void Tetris::LineFill—heck() {
+  for (auto y = mGameFieldLeftUp.y; y <= mGameFieldRightDown.y; ++y) {
+    auto count = 0;
+
+    for (auto x = mGameFieldLeftUp.x; x < mGameFieldRightDown.x; ++x) {
+      if (GetChar(x, y) == L'O') ++count;
+    }
+
+    if (count == (mGameFieldRightDown.x - mGameFieldLeftUp.x))
+      for (auto j = y; j > mGameFieldLeftUp.y; --j)
+        for (auto i = mGameFieldLeftUp.x; i < mGameFieldRightDown.x; ++i)
+          SetChar(i, j, GetChar(i, j - 1));
+  }
 }
