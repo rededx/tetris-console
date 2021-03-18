@@ -10,18 +10,15 @@ Tetris::Tetris() : BaseApp(25, 26) {
   mGameFieldLeftUp = {1, 1};
   mGameFieldRightDown = {15 + mGameFieldLeftUp.x, 20 + mGameFieldLeftUp.y};
 
+  mSpawnPosition = {(mGameFieldRightDown.x - mGameFieldLeftUp.y) / 2,
+                    mGameFieldLeftUp.y};
+
   // create first tetromino
   mTetrominoNum = GetNextTetromino();
-  mTetromino = CalculateCoordinatesTetromino();
-  mTetrominoNextFlag = true;
-
-  // TODO: calculate Y
-  mObjectOld = mObject = {(mGameFieldRightDown.x - mGameFieldLeftUp.y) / 2,
-                          mGameFieldLeftUp.y};
-
+  mTetromino = CalculateCoordinatesTetromino(mTetrominoNum);
   for (auto&& [x, y] : mTetromino) {
-    x += mObject.x;
-    y += mObject.y;
+    x += mSpawnPosition.x;
+    y += mSpawnPosition.y;
   }
   mTetrominoOld = mTetromino;
 
@@ -42,10 +39,9 @@ Tetris::Tetris() : BaseApp(25, 26) {
 }
 
 void Tetris::KeyPressed(int btnCode) {
-  std::shared_ptr<int> dx = nullptr;
-
   if (mKeyboradArrowFlag) {
     mKeyboradArrowFlag = false;
+    std::shared_ptr<int> dx = nullptr;
 
     switch (btnCode) {
       case (int)Keyboard::kArrowUp:
@@ -76,7 +72,6 @@ void Tetris::KeyPressed(int btnCode) {
 
     switch (btnCode) {
       case (int)Keyboard::kSpace:
-        // TODO: crear temp
         tempTetromino = Rotate(mTetromino);
         for (auto&& [x, y] : mTetromino) SetChar(x, y, L'-');
         if (CheckNewPosition(tempTetromino, {0, 0})) mTetromino = tempTetromino;
@@ -91,13 +86,15 @@ void Tetris::KeyPressed(int btnCode) {
 }
 
 void Tetris::UpdateF(float deltaTime) {
-  // action tetromino
+  // change tetromino coordinate
   for (auto&& [x, y] : mTetrominoOld) {
     SetChar(x, y, L'-');
   }
+
   for (auto&& [x, y] : mTetromino) {
     SetChar(x, y, L'O');
   }
+
   mTetrominoOld = mTetromino;
 
   mTime += deltaTime;
@@ -112,11 +109,11 @@ void Tetris::UpdateF(float deltaTime) {
 
       // check and create new tetromino
       mTetrominoNum = GetNextTetromino();
-      mTetromino = CalculateCoordinatesTetromino();
+      mTetromino = CalculateCoordinatesTetromino(mTetrominoNum);
 
       for (auto&& [x, y] : mTetromino) {
-        x += mObject.x;
-        y += mObject.y;
+        x += mSpawnPosition.x;
+        y += mSpawnPosition.y;
       }
 
       if (CheckNewPosition(mTetromino, {0, 0})) {
@@ -129,27 +126,27 @@ void Tetris::UpdateF(float deltaTime) {
   }
 }
 
-int Tetris::GetNextTetromino() {
+Tetromino Tetris::GetNextTetromino() {
   std::random_device rd;
   std::mt19937 mt(rd());
   std::uniform_int_distribution<int> dist(0, mTetrominoFigures.size() - 1);
 
-  return dist(mt);
+  return (Tetromino)dist(mt);
 }
 
-Mat4x2 Tetris::CalculateCoordinatesTetromino() {
+Mat4x2 Tetris::CalculateCoordinatesTetromino(Tetromino tetrominoNum) {
   Mat4x2 coordinates;
 
   for (int i = 0; i < coordinates.size(); i++) {
-    coordinates[i] = {mTetrominoFigures[mTetrominoNum][i] % 4,
-                      mTetrominoFigures[mTetrominoNum][i] / 4};
+    coordinates[i] = {mTetrominoFigures[(int)tetrominoNum][i] % 4,
+                      mTetrominoFigures[(int)tetrominoNum][i] / 4};
   }
 
   return std::move(coordinates);
 }
 
 Mat4x2 Tetris::Rotate(Mat4x2& object) {
-  // labdas block
+  // lambdas block
   auto rotatePoint = [](auto&& vec2, auto&& center) -> Vec2 {
     double radianAngle = 90 * std::_Pi / 180;
     Vec2 newVec2 = {center->x - (vec2.y - center->y),
@@ -181,7 +178,7 @@ Mat4x2 Tetris::Rotate(Mat4x2& object) {
   auto center = mTetromino.begin();
 
   switch (mTetrominoNum) {
-    case (int)Tetromino::I:
+    case Tetromino::I:
       center = mTetromino.begin() + 1;
       if (mStateTetromino) {
         newObject = rotateObject(object, center, rotatePoint);
@@ -192,26 +189,26 @@ Mat4x2 Tetris::Rotate(Mat4x2& object) {
       }
       break;
 
-    case (int)Tetromino::O:
+    case Tetromino::O:
       return std::move(mTetromino);
       break;
 
-    case (int)Tetromino::T:
+    case Tetromino::T:
       center = mTetromino.begin() + 2;
       newObject = rotateObject(object, center, rotatePoint);
       break;
 
-    case (int)Tetromino::J:
+    case Tetromino::J:
       center = mTetromino.begin() + 1;
       newObject = rotateObject(object, center, rotatePoint);
       break;
 
-    case (int)Tetromino::L:
+    case Tetromino::L:
       center = mTetromino.begin() + 1;
       newObject = rotateObject(object, center, rotatePoint);
       break;
 
-    case (int)Tetromino::S:
+    case Tetromino::S:
       center = mTetromino.begin() + 1;
       if (mStateTetromino)
         newObject = rotateObject(object, center, rotatePoint);
@@ -220,7 +217,7 @@ Mat4x2 Tetris::Rotate(Mat4x2& object) {
       mStateTetromino = !mStateTetromino;
       break;
 
-    case (int)Tetromino::Z:
+    case Tetromino::Z:
       center = mTetromino.begin() + 2;
       if (mStateTetromino)
         newObject = rotateObject(object, center, rotatePoint);

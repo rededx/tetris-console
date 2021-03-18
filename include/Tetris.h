@@ -10,7 +10,6 @@
 #include "Auxiliary.h"
 #include "BaseApp.h"
 
-// using Vec2 = std::pair<int, int>;
 using Mat2 = std::array<Vec2, 2>;
 using Mat4x2 = std::array<Vec2, 4>;
 
@@ -21,8 +20,8 @@ class Tetris : public BaseApp {
   void KeyPressed(int btnCode) override;
   void UpdateF(float deltaTime) override;
 
-  int GetNextTetromino();
-  Mat4x2 CalculateCoordinatesTetromino();
+  Tetromino GetNextTetromino();
+  Mat4x2 CalculateCoordinatesTetromino(Tetromino tetrominoNum);
   Mat4x2 Rotate(Mat4x2&);
   bool CheckNewPosition(Mat4x2& objectj, Vec2&& vectorMove);
   void LineFill—heck();
@@ -37,8 +36,7 @@ class Tetris : public BaseApp {
   int mWindowWidth, mWindowHeight;
   bool mKeyboradArrowFlag = false;
 
-  Vec2 mObjectOld;
-  Vec2 mObject;
+  Vec2 mSpawnPosition;
 
   std::array<std::array<int, 4>, 7> mTetrominoFigures = {{
       {1, 5, 9, 13},  // I
@@ -50,13 +48,12 @@ class Tetris : public BaseApp {
       {0, 1, 5, 6}    // Z
   }};
 
-  // true = vertical
-  bool mStateTetromino = true;
-
   Mat4x2 mTetromino;
   Mat4x2 mTetrominoOld;
   Mat4x2 mTetrominoNext;
 
-  int mTetrominoNum;
-  bool mTetrominoNextFlag = false;
+  Tetromino mTetrominoNum;
+
+  // true = vertical
+  bool mStateTetromino = true;
 };
