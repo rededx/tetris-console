@@ -105,6 +105,17 @@ void Tetris::UpdateF(float deltaTime) {
     }
   }
 
+  // change tetromino coordinate
+  for (auto&& [x, y] : mTetrominoOld) {
+    SetChar(x, y, L'-');
+  }
+
+  for (auto&& [x, y] : mTetromino) {
+    SetChar(x, y, L'O');
+  }
+
+  mTetrominoOld = mTetromino;
+
   mTime += deltaTime;
   if (mTime > mDelay) {
     mTime -= mDelay;
@@ -145,17 +156,6 @@ void Tetris::UpdateF(float deltaTime) {
       if (!CheckNewPosition(mTetromino, {0, 0})) exit(0);
     }
   }
-
-  // change tetromino coordinate
-  for (auto&& [x, y] : mTetrominoOld) {
-    SetChar(x, y, L'-');
-  }
-
-  for (auto&& [x, y] : mTetromino) {
-    SetChar(x, y, L'O');
-  }
-
-  mTetrominoOld = mTetromino;
 }
 
 Tetromino Tetris::GetNextTetromino() {
