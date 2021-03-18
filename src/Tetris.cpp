@@ -78,18 +78,13 @@ void Tetris::KeyPressed(int btnCode) {
       case (int)Keyboard::kSpace:
         // TODO: crear temp
         tempTetromino = Rotate(mTetromino);
+        for (auto&& [x, y] : mTetromino) SetChar(x, y, L'-');
+        if (CheckNewPosition(tempTetromino, {0, 0})) mTetromino = tempTetromino;
         break;
+
       default:
         break;
     }
-
-    bool actionFlag = true;
-    for (auto&& [x, y] : tempTetromino) {
-      if (x < mGameFieldLeftUp.x || x > mGameFieldRightDown.x ||
-          y >= mGameFieldRightDown.y)
-        actionFlag = false;
-    }
-    if (actionFlag) mTetromino = tempTetromino;
   }
 
   if (btnCode == (int)Keyboard::kArrow) mKeyboradArrowFlag = true;
@@ -104,6 +99,7 @@ void Tetris::UpdateF(float deltaTime) {
     SetChar(x, y, L'O');
   }
   mTetrominoOld = mTetromino;
+
 
   mTime += deltaTime;
   if (mTime > mDelay) {
@@ -273,8 +269,12 @@ bool Tetris::CheckNewPosition(Mat4x2& object, Vec2&& vectorMove) {
   };
 
   if (vectorMove.x == 0 && vectorMove.y == 0) {
-    for (auto&& [x, y] : object)
+    for (auto&& [x, y] : object) {
       if (GetChar(x, y) == L'O') return false;
+      if (x < mGameFieldLeftUp.x || x > mGameFieldRightDown.x ||
+          y > mGameFieldRightDown.y)
+        return false;
+    }
   } else if (vectorMove.x != 0)
     for (auto&& [y, x] : edgeRightOrLeft()) {
       if (GetChar(x + vectorMove.x, y + vectorMove.y) == L'O') return false;
