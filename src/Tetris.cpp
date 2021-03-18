@@ -2,25 +2,21 @@
 
 #include <thread>
 
-Tetris::Tetris() : BaseApp(25, 26) {
-  mWindowWidth = 25;
+Tetris::Tetris() : BaseApp(26, 26) {
+  mWindowWidth = 26;
   mWindowHeight = 26;
 
   // set game field
   mGameFieldLeftUp = {1, 1};
   mGameFieldRightDown = {15 + mGameFieldLeftUp.x, 20 + mGameFieldLeftUp.y};
 
-  mSpawnPosition = {(mGameFieldRightDown.x - mGameFieldLeftUp.y) / 2,
+  mSpawnPosition = {(mGameFieldRightDown.x - mGameFieldLeftUp.x) / 2,
                     mGameFieldLeftUp.y};
 
-  // create first tetromino
-  mTetrominoNum = GetNextTetromino();
-  mTetromino = CalculateCoordinatesTetromino(mTetrominoNum);
-  for (auto&& [x, y] : mTetromino) {
-    x += mSpawnPosition.x;
-    y += mSpawnPosition.y;
-  }
-  mTetrominoOld = mTetromino;
+  mSpawnPositionPreview = {
+      (mWindowWidth - (mGameFieldRightDown.x - mGameFieldLeftUp.x)) / 2 +
+          (mGameFieldRightDown.x - mGameFieldLeftUp.x),
+      mGameFieldLeftUp.y + 2};
 
   // Create border
   for (int i = 0; i < mWindowWidth; i++) {
@@ -86,6 +82,70 @@ void Tetris::KeyPressed(int btnCode) {
 }
 
 void Tetris::UpdateF(float deltaTime) {
+  // First draw
+  if (mTetrominoNum == Tetromino::kUnknown) {
+    mTetrominoNum = GetNextTetromino();
+    mTetromino = CalculateCoordinatesTetromino(mTetrominoNum);
+
+    // Update tetromino
+    for (auto&& [x, y] : mTetromino) {
+      x += mSpawnPosition.x;
+      y += mSpawnPosition.y;
+    }
+
+    mTetrominoOld = mTetromino;
+
+    // Create next tetromino
+    mTetrominoNextNum = GetNextTetromino();
+    mTetrominoNext = CalculateCoordinatesTetromino(mTetrominoNextNum);
+
+    // Create preview
+    for (auto&& [x, y] : mTetrominoNext) {
+      SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L'O');
+    }
+  }
+
+  mTime += deltaTime;
+  if (mTime > mDelay) {
+    mTime -= mDelay;
+
+    // move tetromino
+    if (CheckNewPosition(mTetromino, {0, 1}))
+      for (auto&& [x, y] : mTetromino) ++y;
+
+    else {
+      // check line
+      LineFill—heck();
+
+      // Clear Preview
+      for (auto&& [x, y] : mTetrominoNext) {
+        SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L' ');
+      }
+
+      // Update tetromino
+      for (auto&& [x, y] : mTetrominoNext) {
+        x += mSpawnPosition.x;
+        y += mSpawnPosition.y;
+      }
+
+      mTetrominoOld = mTetromino = mTetrominoNext;
+      mTetrominoNum = mTetrominoNextNum;
+
+      // Create new tetromino
+      mTetrominoNextNum = GetNextTetromino();
+      mTetrominoNext = CalculateCoordinatesTetromino(mTetrominoNextNum);
+
+      // Create preview
+      for (auto&& [x, y] : mTetrominoNext) {
+        SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L'O');
+      }
+
+      mDelay = 0.3f;
+
+      if (!CheckNewPosition(mTetromino, {0, 0})) exit(0);
+    }
+  }
+
   // change tetromino coordinate
   for (auto&& [x, y] : mTetrominoOld) {
     SetChar(x, y, L'-');
@@ -96,34 +156,6 @@ void Tetris::UpdateF(float deltaTime) {
   }
 
   mTetrominoOld = mTetromino;
-
-  mTime += deltaTime;
-  if (mTime > mDelay) {
-    mTime -= mDelay;
-    // move tetromino
-    if (CheckNewPosition(mTetromino, {0, 1}))
-      for (auto&& [x, y] : mTetromino) ++y;
-    else {
-      // check line
-      LineFill—heck();
-
-      // check and create new tetromino
-      mTetrominoNum = GetNextTetromino();
-      mTetromino = CalculateCoordinatesTetromino(mTetrominoNum);
-
-      for (auto&& [x, y] : mTetromino) {
-        x += mSpawnPosition.x;
-        y += mSpawnPosition.y;
-      }
-
-      if (CheckNewPosition(mTetromino, {0, 0})) {
-        mTetrominoOld = mTetromino;
-
-        mDelay = 0.3f;
-      } else
-        exit(0);
-    }
-  }
 }
 
 Tetromino Tetris::GetNextTetromino() {

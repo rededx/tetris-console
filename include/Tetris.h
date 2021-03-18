@@ -37,6 +37,7 @@ class Tetris : public BaseApp {
   bool mKeyboradArrowFlag = false;
 
   Vec2 mSpawnPosition;
+  Vec2 mSpawnPositionPreview;
 
   std::array<std::array<int, 4>, 7> mTetrominoFigures = {{
       {1, 5, 9, 13},  // I
@@ -52,8 +53,9 @@ class Tetris : public BaseApp {
   Mat4x2 mTetrominoOld;
   Mat4x2 mTetrominoNext;
 
-  Tetromino mTetrominoNum;
-
+  Tetromino mTetrominoNum = Tetromino::kUnknown;
+  Tetromino mTetrominoNextNum = Tetromino::kUnknown;
+  
   // true = vertical
   bool mStateTetromino = true;
 };
