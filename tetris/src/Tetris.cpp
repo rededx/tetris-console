@@ -2,9 +2,10 @@
 
 #include <thread>
 
-Tetris::Tetris() : BaseApp(28, 28) {
-  mWindowWidth = 26;
-  mWindowHeight = 27;
+Tetris::Tetris(int &&windowWidth, int &&windowHeight)
+    : BaseApp(windowWidth, windowHeight) {
+  mWindowWidth = windowWidth;
+  mWindowHeight = windowHeight;
 
   // Set game field
   mGameFieldLeftUp = {1, 1};

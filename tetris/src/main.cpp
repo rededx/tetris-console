@@ -1,8 +1,8 @@
 #include "Tetris.h"
 
 int main() {
-	Tetris tetris;
-	tetris.Run();
+  Tetris tetris{26, 27};
+  tetris.Run();
 
-	return 0;
+  return 0;
 }

@@ -22,13 +22,15 @@ using Mat4x2 = std::array<Vec2, 4>;
  */
 class Tetris : public BaseApp {
  public:
+  Tetris() = delete;
+
   /**
    * @brief Construct a new Tetris object.
    *
    * The constructor sets the initial coordinates for drawing the game
    * interface.
    */
-  Tetris();
+  Tetris(int&& windowWidth, int&& windowHeight);
 
   /**
    * @brief Event handling method.
