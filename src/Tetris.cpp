@@ -1,8 +1,8 @@
-#include "Tetris.h"
+Ôªø#include "Tetris.h"
 
 #include <thread>
 
-Tetris::Tetris() : BaseApp(26, 27) {
+Tetris::Tetris() : BaseApp(28, 28) {
   mWindowWidth = 26;
   mWindowHeight = 27;
 
@@ -25,7 +25,7 @@ Tetris::Tetris() : BaseApp(26, 27) {
   };
 
   // Create border
-  for (int i = 0; i < mWindowWidth; i++) {
+  for (int i = 0; i < mWindowWidth; i++)
     for (int j = 0; j < mWindowHeight; j++) {
       if (i == 0 ||                  // outer left border
           i == mWindowWidth - 1 ||   // outer right border
@@ -36,8 +36,23 @@ Tetris::Tetris() : BaseApp(26, 27) {
           j == mGameFieldRightDown.y + 1      // inner bottom border
       )
         SetChar(i, j, L'#');
+
+      if (i >= mGameFieldLeftUp.x && i <= mGameFieldRightDown.x &&
+          j >= mGameFieldLeftUp.y && j <= mGameFieldRightDown.y)
+        SetChar(i, j, L'.');
     }
-  }
+
+  /* auto test = ;*/
+  CONSOLE_FONT_INFOEX cfon;
+  ZeroMemory(&cfon, sizeof(CONSOLE_FONT_INFOEX));
+  cfon.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+  cfon.nFont = 0;
+  cfon.dwFontSize.X = 8;
+  cfon.dwFontSize.Y = 12;
+  cfon.FontFamily = FF_DONTCARE;
+  cfon.FontWeight = FW_NORMAL;
+  lstrcpyW(cfon.FaceName, L"Terminal");
+  SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), false, &cfon);
 }
 
 void Tetris::KeyPressed(int btnCode) {
@@ -75,7 +90,7 @@ void Tetris::KeyPressed(int btnCode) {
     switch (btnCode) {
       case (int)Keyboard::kSpace:
         tempTetromino = Rotate(mTetromino);
-        for (auto&& [x, y] : mTetromino) SetChar(x, y, L'-');
+        for (auto&& [x, y] : mTetromino) SetChar(x, y, L'.');
         if (CheckNewPosition(tempTetromino, {0, 0})) mTetromino = tempTetromino;
         break;
 
@@ -119,7 +134,7 @@ void Tetris::UpdateF(float deltaTime) {
 
   // change tetromino coordinate
   for (auto&& [x, y] : mTetrominoOld) {
-    SetChar(x, y, L'-');
+    SetChar(x, y, L'.');
   }
 
   for (auto&& [x, y] : mTetromino) {
@@ -138,7 +153,7 @@ void Tetris::UpdateF(float deltaTime) {
 
     else {
       // check line
-      LineFill—heck();
+      LineFill–°heck();
 
       // Show score
       auto scoreStr = std::wstring(L"> Score: " + std::to_wstring(mScore));
@@ -172,7 +187,10 @@ void Tetris::UpdateF(float deltaTime) {
 
       mDelay = 0.3f;
 
-      if (!CheckNewPosition(mTetromino, {0, 0})) exit(0);
+      if (!CheckNewPosition(mTetromino, {0, 0})) {
+        HWND myConsole = GetConsoleWindow();
+        PostMessage(myConsole, WM_CLOSE, 0, 0);
+      }
     }
   }
 }
@@ -342,7 +360,7 @@ bool Tetris::CheckNewPosition(Mat4x2& object, Vec2&& vectorMove) {
   return true;
 }
 
-void Tetris::LineFill—heck() {
+void Tetris::LineFill–°heck() {
   for (auto y = mGameFieldLeftUp.y; y <= mGameFieldRightDown.y; ++y) {
     auto count = 0;
 
