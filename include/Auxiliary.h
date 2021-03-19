@@ -11,7 +11,8 @@ enum class Keyboard : int {
 };
 
 enum class Tetromino : int {
-	I = 0,
+	kUnknown = -1,
+	I,
 	O,
 	T,
 	J,
