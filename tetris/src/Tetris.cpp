@@ -45,18 +45,6 @@ Tetris::Tetris(int &&windowWidth, int &&windowHeight)
           j >= mGameFieldLeftUp.y && j <= mGameFieldRightDown.y)
         SetChar(i, j, L'.');
     }
-
-  // Set font console
-  CONSOLE_FONT_INFOEX cfon;
-  ZeroMemory(&cfon, sizeof(CONSOLE_FONT_INFOEX));
-  cfon.cbSize = sizeof(CONSOLE_FONT_INFOEX);
-  cfon.nFont = 0;
-  cfon.dwFontSize.X = 8;
-  cfon.dwFontSize.Y = 12;
-  cfon.FontFamily = FF_DONTCARE;
-  cfon.FontWeight = FW_NORMAL;
-  lstrcpyW(cfon.FaceName, L"Terminal");
-  SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), false, &cfon);
 }
 
 void Tetris::KeyPressed(int btnCode) {
