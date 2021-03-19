@@ -81,7 +81,7 @@ void Tetris::KeyPressed(int btnCode) {
 
     if (dx != nullptr)
       if (CheckNewPosition(mTetromino, {*dx, 0}))
-        for (auto&& [x, y] : mTetromino) x += *dx;
+        for (auto &&[x, y] : mTetromino) x += *dx;
 
   } else {
     Mat4x2 tempTetromino;
@@ -89,7 +89,7 @@ void Tetris::KeyPressed(int btnCode) {
     switch (btnCode) {
       case (int)Keyboard::kSpace:
         tempTetromino = Rotate(mTetromino);
-        for (auto&& [x, y] : mTetromino) SetChar(x, y, L'.');
+        for (auto &&[x, y] : mTetromino) SetChar(x, y, L'.');
         if (CheckNewPosition(tempTetromino, {0, 0}))
           mTetromino = tempTetromino;
         else
@@ -111,7 +111,7 @@ void Tetris::UpdateF(float deltaTime) {
     mTetromino = CalculateCoordinatesTetromino(mTetrominoNum);
 
     // Update tetromino
-    for (auto&& [x, y] : mTetromino) {
+    for (auto &&[x, y] : mTetromino) {
       x += mSpawnPosition.x;
       y += mSpawnPosition.y;
     }
@@ -123,7 +123,7 @@ void Tetris::UpdateF(float deltaTime) {
     mTetrominoNext = CalculateCoordinatesTetromino(mTetrominoNextNum);
 
     // Create preview
-    for (auto&& [x, y] : mTetrominoNext) {
+    for (auto &&[x, y] : mTetrominoNext) {
       SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L'O');
     }
 
@@ -135,11 +135,11 @@ void Tetris::UpdateF(float deltaTime) {
   }
 
   // change tetromino coordinate
-  for (auto&& [x, y] : mTetrominoOld) {
+  for (auto &&[x, y] : mTetrominoOld) {
     SetChar(x, y, L'.');
   }
 
-  for (auto&& [x, y] : mTetromino) {
+  for (auto &&[x, y] : mTetromino) {
     SetChar(x, y, L'O');
   }
 
@@ -151,7 +151,7 @@ void Tetris::UpdateF(float deltaTime) {
 
     // move tetromino
     if (CheckNewPosition(mTetromino, {0, 1}))
-      for (auto&& [x, y] : mTetromino) ++y;
+      for (auto &&[x, y] : mTetromino) ++y;
 
     else {
       // check line
@@ -165,12 +165,12 @@ void Tetris::UpdateF(float deltaTime) {
       }
 
       // Clear Preview
-      for (auto&& [x, y] : mTetrominoNext) {
+      for (auto &&[x, y] : mTetrominoNext) {
         SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L' ');
       }
 
       // Update tetromino
-      for (auto&& [x, y] : mTetrominoNext) {
+      for (auto &&[x, y] : mTetrominoNext) {
         x += mSpawnPosition.x;
         y += mSpawnPosition.y;
       }
@@ -183,7 +183,7 @@ void Tetris::UpdateF(float deltaTime) {
       mTetrominoNext = CalculateCoordinatesTetromino(mTetrominoNextNum);
 
       // Create preview
-      for (auto&& [x, y] : mTetrominoNext) {
+      for (auto &&[x, y] : mTetrominoNext) {
         SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L'O');
       }
 
@@ -217,28 +217,28 @@ Mat4x2 Tetris::CalculateCoordinatesTetromino(Tetromino tetrominoNum) {
   return std::move(coordinates);
 }
 
-Mat4x2 Tetris::Rotate(Mat4x2& object) {
+Mat4x2 Tetris::Rotate(Mat4x2 &object) {
   // lambdas block
-  auto rotatePoint = [](auto&& vec2, auto&& center) -> Vec2 {
+  auto rotatePoint = [](auto &&vec2, auto &&center) -> Vec2 {
     double radianAngle = 90 * std::_Pi / 180;
     Vec2 newVec2 = {center->x - (vec2.y - center->y),
                     center->y + (vec2.x - center->x)};
     return std::move(newVec2);
   };
 
-  auto rotatePointBack = [](auto&& vec2, auto&& center) -> Vec2 {
+  auto rotatePointBack = [](auto &&vec2, auto &&center) -> Vec2 {
     double radianAngle = 90 * std::_Pi / 180;
     Vec2 newVec2 = {center->x + (vec2.y - center->y),
                     center->y - (vec2.x - center->x)};
     return std::move(newVec2);
   };
 
-  auto rotateObject = [](auto&& object, auto&& center,
-                         auto&& rotateFunction) -> Mat4x2 {
+  auto rotateObject = [](auto &&object, auto &&center,
+                         auto &&rotateFunction) -> Mat4x2 {
     Mat4x2 newObject;
     auto iterNewObj = newObject.begin();
 
-    for (auto&& vec2 : object) {
+    for (auto &&vec2 : object) {
       *iterNewObj = rotateFunction(vec2, center);
       iterNewObj++;
     }
@@ -305,12 +305,12 @@ Mat4x2 Tetris::Rotate(Mat4x2& object) {
   return std::move(newObject);
 }
 
-bool Tetris::CheckNewPosition(Mat4x2& object, Vec2&& vectorMove) {
+bool Tetris::CheckNewPosition(Mat4x2 &object, Vec2 &&vectorMove) {
   auto edgeRightOrLeft = [&]() -> decltype(auto) {
     std::unordered_map<decltype(object.begin()->y), decltype(object.begin()->x)>
         edgeElement;
 
-    for (auto&& [x, y] : object) {
+    for (auto &&[x, y] : object) {
       auto element = edgeElement.find(y);
 
       if (element != edgeElement.end()) {
@@ -328,7 +328,7 @@ bool Tetris::CheckNewPosition(Mat4x2& object, Vec2&& vectorMove) {
     std::unordered_map<decltype(object.begin()->y), decltype(object.begin()->x)>
         edgeElement;
 
-    for (auto&& [x, y] : object) {
+    for (auto &&[x, y] : object) {
       auto element = edgeElement.find(x);
 
       if (element != edgeElement.end()) {
@@ -340,14 +340,14 @@ bool Tetris::CheckNewPosition(Mat4x2& object, Vec2&& vectorMove) {
   };
 
   if (vectorMove.x == 0 && vectorMove.y == 0) {
-    for (auto&& [x, y] : object) {
+    for (auto &&[x, y] : object) {
       if (GetChar(x, y) == L'O') return false;
       if (x < mGameFieldLeftUp.x || x > mGameFieldRightDown.x ||
           y > mGameFieldRightDown.y)
         return false;
     }
   } else if (vectorMove.x != 0)
-    for (auto&& [y, x] : edgeRightOrLeft()) {
+    for (auto &&[y, x] : edgeRightOrLeft()) {
       if (GetChar(x + vectorMove.x, y + vectorMove.y) == L'O') return false;
 
       if (x + vectorMove.x < mGameFieldLeftUp.x ||
@@ -355,7 +355,7 @@ bool Tetris::CheckNewPosition(Mat4x2& object, Vec2&& vectorMove) {
         return false;
     }
   else if (vectorMove.y != 0)
-    for (auto&& [x, y] : edgeDown()) {
+    for (auto &&[x, y] : edgeDown()) {
       if (y + vectorMove.y > mGameFieldRightDown.y) return false;
       if (GetChar(x + vectorMove.x, y + vectorMove.y) == L'O') return false;
     }

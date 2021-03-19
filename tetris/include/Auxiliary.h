@@ -23,5 +23,5 @@ enum class Tetromino : int {
 
 struct Vec2 {
   int x;
-  int y;
+  int y; 
 };

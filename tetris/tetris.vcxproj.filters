@@ -17,4 +17,29 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Auxiliary.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BaseApp.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PerformanceCounter.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Tetris.h">
+      <Filter>include</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\BaseApp.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tetris.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
 </Project>
