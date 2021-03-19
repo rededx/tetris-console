@@ -1,2 +1,9 @@
 .vs
+
+Release
 Debug
+x64
+
+tetris/Release
+tetris/Debug
+tetris/x64
