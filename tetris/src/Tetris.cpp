@@ -6,25 +6,28 @@ Tetris::Tetris() : BaseApp(28, 28) {
   mWindowWidth = 26;
   mWindowHeight = 27;
 
-  // set game field
+  // Set game field
   mGameFieldLeftUp = {1, 1};
   mGameFieldRightDown = {15 + mGameFieldLeftUp.x, 20 + mGameFieldLeftUp.y};
 
+  // Set spawn position
   mSpawnPosition = {(mGameFieldRightDown.x - mGameFieldLeftUp.x) / 2,
                     mGameFieldLeftUp.y};
 
+  // Set spawn position preview
   mSpawnPositionPreview = {
       (mWindowWidth - (mGameFieldRightDown.x - mGameFieldLeftUp.x)) / 2 +
           (mGameFieldRightDown.x - mGameFieldLeftUp.x),
       mGameFieldLeftUp.y + 2};
 
+  // Set spawn position score
   mSpawnPositionScore = {
       2 + mGameFieldLeftUp.x,
       (mWindowHeight - (mGameFieldRightDown.y + mGameFieldLeftUp.y)) / 2 +
           (mGameFieldRightDown.y + mGameFieldLeftUp.y),
   };
 
-  // Create border
+  // Create border and game field
   for (int i = 0; i < mWindowWidth; i++)
     for (int j = 0; j < mWindowHeight; j++) {
       if (i == 0 ||                  // outer left border
@@ -42,6 +45,7 @@ Tetris::Tetris() : BaseApp(28, 28) {
         SetChar(i, j, L'.');
     }
 
+  // Set font console
   CONSOLE_FONT_INFOEX cfon;
   ZeroMemory(&cfon, sizeof(CONSOLE_FONT_INFOEX));
   cfon.cbSize = sizeof(CONSOLE_FONT_INFOEX);
@@ -84,16 +88,16 @@ void Tetris::KeyPressed(int btnCode) {
         for (auto &&[x, y] : mTetromino) x += *dx;
 
   } else {
-    Mat4x2 tempTetromino;
-
     switch (btnCode) {
       case (int)Keyboard::kSpace:
-        tempTetromino = Rotate(mTetromino);
+        auto tempTetromino = Rotate(mTetromino);
         for (auto &&[x, y] : mTetromino) SetChar(x, y, L'.');
+
         if (CheckNewPosition(tempTetromino, {0, 0}))
           mTetromino = tempTetromino;
         else
           mStateTetromino = !mStateTetromino;
+
         break;
 
       default:
@@ -107,10 +111,10 @@ void Tetris::KeyPressed(int btnCode) {
 void Tetris::UpdateF(float deltaTime) {
   // First draw
   if (mTetrominoNum == Tetromino::kUnknown) {
+    // Building the first tetromino
     mTetrominoNum = GetNextTetromino();
     mTetromino = CalculateCoordinatesTetromino(mTetrominoNum);
 
-    // Update tetromino
     for (auto &&[x, y] : mTetromino) {
       x += mSpawnPosition.x;
       y += mSpawnPosition.y;
@@ -122,74 +126,75 @@ void Tetris::UpdateF(float deltaTime) {
     mTetrominoNextNum = GetNextTetromino();
     mTetrominoNext = CalculateCoordinatesTetromino(mTetrominoNextNum);
 
-    // Create preview
+    // Draw the first preview
     for (auto &&[x, y] : mTetrominoNext) {
       SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L'O');
     }
 
-    // Show score
+    // Draw the first score
     auto scoreStr = std::wstring(L"> Score: " + std::to_wstring(mScore));
     for (auto i = 0; i < scoreStr.size(); ++i) {
       SetChar(mSpawnPositionScore.x + i, mSpawnPositionScore.y, scoreStr.at(i));
     }
   }
 
-  // change tetromino coordinate
+  // Clear old tetromino
   for (auto &&[x, y] : mTetrominoOld) {
     SetChar(x, y, L'.');
   }
 
+  // Draw new tetromino
   for (auto &&[x, y] : mTetromino) {
     SetChar(x, y, L'O');
   }
 
   mTetrominoOld = mTetromino;
 
-  mTime += deltaTime;
-  if (mTime > mDelay) {
+  // Updating еetrщmino after a specified time
+  if (mTime += deltaTime; mTime > mDelay) {
     mTime -= mDelay;
 
-    // move tetromino
     if (CheckNewPosition(mTetromino, {0, 1}))
+      // Move tetromino down
       for (auto &&[x, y] : mTetromino) ++y;
 
     else {
-      // check line
-      LineFillСheck();
+      LineFillCheck();
 
-      // Show score
+      // Update score
       auto scoreStr = std::wstring(L"> Score: " + std::to_wstring(mScore));
       for (auto i = 0; i < scoreStr.size(); ++i) {
         SetChar(mSpawnPositionScore.x + i, mSpawnPositionScore.y,
                 scoreStr.at(i));
       }
 
-      // Clear Preview
+      // Clear old preview
       for (auto &&[x, y] : mTetrominoNext) {
         SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L' ');
       }
 
-      // Update tetromino
+      // Update curent tetromino
       for (auto &&[x, y] : mTetrominoNext) {
         x += mSpawnPosition.x;
         y += mSpawnPosition.y;
       }
-
       mTetrominoOld = mTetromino = mTetrominoNext;
       mTetrominoNum = mTetrominoNextNum;
 
-      // Create new tetromino
+      // Create new next tetromino
       mTetrominoNextNum = GetNextTetromino();
       mTetrominoNext = CalculateCoordinatesTetromino(mTetrominoNextNum);
 
-      // Create preview
+      // Create new preview
       for (auto &&[x, y] : mTetrominoNext) {
         SetChar(x + mSpawnPositionPreview.x, y + mSpawnPositionPreview.y, L'O');
       }
 
-      mDelay = 0.3f;
+      // Set default value
+      mDelay = 0.5f;
       mStateTetromino = true;
 
+      // Check end game and close window
       if (!CheckNewPosition(mTetromino, {0, 0})) {
         HWND myConsole = GetConsoleWindow();
         PostMessage(myConsole, WM_CLOSE, 0, 0);
@@ -209,6 +214,7 @@ Tetromino Tetris::GetNextTetromino() {
 Mat4x2 Tetris::CalculateCoordinatesTetromino(Tetromino tetrominoNum) {
   Mat4x2 coordinates;
 
+  // Determination of coordinates according to position in the tetromino matrix
   for (int i = 0; i < coordinates.size(); i++) {
     coordinates[i] = {mTetrominoFigures[(int)tetrominoNum][i] % 4,
                       mTetrominoFigures[(int)tetrominoNum][i] / 4};
@@ -218,7 +224,6 @@ Mat4x2 Tetris::CalculateCoordinatesTetromino(Tetromino tetrominoNum) {
 }
 
 Mat4x2 Tetris::Rotate(Mat4x2 &object) {
-  // lambdas block
   auto rotatePoint = [](auto &&vec2, auto &&center) -> Vec2 {
     double radianAngle = 90 * std::_Pi / 180;
     Vec2 newVec2 = {center->x - (vec2.y - center->y),
@@ -247,9 +252,8 @@ Mat4x2 Tetris::Rotate(Mat4x2 &object) {
   };
 
   Mat4x2 newObject;
-  auto center = mTetromino.begin();
 
-  switch (mTetrominoNum) {
+  switch (auto center = mTetromino.begin(); mTetrominoNum) {
     case Tetromino::I:
       center = mTetromino.begin() + 1;
       if (mStateTetromino) {
@@ -363,7 +367,7 @@ bool Tetris::CheckNewPosition(Mat4x2 &object, Vec2 &&vectorMove) {
   return true;
 }
 
-void Tetris::LineFillСheck() {
+void Tetris::LineFillCheck() {
   for (auto y = mGameFieldLeftUp.y; y <= mGameFieldRightDown.y; ++y) {
     auto count = 0;
 
@@ -377,7 +381,6 @@ void Tetris::LineFillСheck() {
           SetChar(i, j, GetChar(i, j - 1));
         }
 
-      // Update score
       mScore += 100l;
     }
   }
