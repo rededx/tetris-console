@@ -42,7 +42,6 @@ Tetris::Tetris() : BaseApp(28, 28) {
         SetChar(i, j, L'.');
     }
 
-  /* auto test = ;*/
   CONSOLE_FONT_INFOEX cfon;
   ZeroMemory(&cfon, sizeof(CONSOLE_FONT_INFOEX));
   cfon.cbSize = sizeof(CONSOLE_FONT_INFOEX);
@@ -91,7 +90,10 @@ void Tetris::KeyPressed(int btnCode) {
       case (int)Keyboard::kSpace:
         tempTetromino = Rotate(mTetromino);
         for (auto&& [x, y] : mTetromino) SetChar(x, y, L'.');
-        if (CheckNewPosition(tempTetromino, {0, 0})) mTetromino = tempTetromino;
+        if (CheckNewPosition(tempTetromino, {0, 0}))
+          mTetromino = tempTetromino;
+        else
+          mStateTetromino = !mStateTetromino;
         break;
 
       default:
@@ -186,6 +188,7 @@ void Tetris::UpdateF(float deltaTime) {
       }
 
       mDelay = 0.3f;
+      mStateTetromino = true;
 
       if (!CheckNewPosition(mTetromino, {0, 0})) {
         HWND myConsole = GetConsoleWindow();
